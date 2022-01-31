@@ -16,6 +16,7 @@ export default function ChatPage() {
         supabaseClient
         .from('mensagens')
         .select('*')
+        .order('id', { ascending: false })
         .then(({ data }) => {
             console.log('Dados da consulta', data);
             setListaDeMensagens(data);
@@ -26,14 +27,24 @@ export default function ChatPage() {
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
+            // id: listaDeMensagens.length + 1,
             de: 'luizsaulo',
             texto: novaMensagem,
         };
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
+
+        supabaseClient
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+                setListaDeMensagens([
+                data[0],
+                ...listaDeMensagens,
+                ]);
+            })
+
+       
         setMensagem('');
     }
 
