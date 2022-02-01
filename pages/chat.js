@@ -130,6 +130,7 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
+                        <ButtonSendSticker />
                     </Box>
                 </Box>
             </Box>
