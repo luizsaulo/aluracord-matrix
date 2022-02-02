@@ -9,6 +9,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5v
 const SUPABASE_URL = 'https://ntnfsqhjgtqnwimimssc.supabase.co';
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+function escutaMensagensEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+      .from('mensagens')
+      .on('INSERT', (respostaLive) => {
+        adicionaMensagem(respostaLive.new);
+      })
+      .subscribe();
+  }
 
 export default function ChatPage() {
     const roteamento = useRouter();
@@ -24,6 +32,15 @@ export default function ChatPage() {
         .then(({ data }) => {
             console.log('Dados da consulta', data);
             setListaDeMensagens(data);
+        });
+
+        escutaMensagensEmTempoReal((novaMensagem) => {
+           setListaDeMensagens((valorAtualDaLista) => {
+               return [
+               novaMensagem,
+               ...listaDeMensagens,
+           ]
+         });
         });
     }, [listaDeMensagens]);
 
@@ -130,7 +147,11 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
-                        <ButtonSendSticker />
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                handleNovaMensagem(':sticker: ' + sticker);
+                            }}
+                        />
                     </Box>
                 </Box>
             </Box>
@@ -214,6 +235,18 @@ function MessageList(props) {
                             </Text>
                         </Box>
                         {mensagem.texto}
+                        {mensagem.texto.startsWith(':sticker:')
+              ? (
+                <Image src={mensagem.texto.replace(':sticker:', '')} />
+              )
+              : (
+                mensagem.texto
+              )}
+            {/* if mensagem de texto possui stickers:
+                           mostra a imagem
+                        else 
+                           mensagem.texto */}
+            {/* {mensagem.texto} */}
                     </Text>
                 );
             })}
